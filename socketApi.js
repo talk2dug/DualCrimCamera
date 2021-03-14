@@ -196,6 +196,7 @@ function sendVideoInfo(file, camera){
     var videoFilescam1 = []
     var videoFilescam2 = []
     var videoFilescam3 = []
+    //send em
 function sendVideoFiles(){
    
     exec('ls /home/pi/DualCrimeCamera/public/videos/cam1' , function(error, stdout, stderr) {

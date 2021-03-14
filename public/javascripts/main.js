@@ -182,7 +182,7 @@ $(function() {
                           $('#myModal').modal('toggle')
 
         })
-        //<a href="myfile.pdf" download="myfile.pdf">Click to Download</a>
+        //<a href="myfile.pdf" download=" myfile.pdf">Click to Download</a>
         player = new JSMpeg.Player('ws://192.168.196.12:9999', {
             canvas: document.getElementById('canvas') // Canvas should be a canvas DOM element
           })	
