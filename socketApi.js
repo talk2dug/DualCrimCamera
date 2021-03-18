@@ -46,7 +46,7 @@ child = null;
 var systemInfo = {
     "name":"DualCrimeCam",
     'id': 'jhgwesd',
-    "ip":"192.168.196.89",
+    "ip":"192.168.196.164",
     "numOfCams":3,
     "typs":"standard",
     'sysInfo':{
@@ -75,13 +75,13 @@ socket2.on("hi", function(data){
 function Startrecording(){
 
 
-    var fileNameTImeStamp = moment().format("YYYY-MM-DD-HHmm");
+    
 
        child = spawn("ffmpeg", [
           "-hide_banner","-loglevel", "panic",
           "-i", "rtsp://admin:UUnv9njxg123@10.10.5.2:554/cam/realmonitor?channel=1&subtype=0",
            "-vcodec",  "copy",  "-f", "segment", "-strftime", "1", 
-           "-segment_time", "900", "-segment_format", "mp4", "/home/pi/DualCrimeCamera/public/videos/cam1/%Y-%m-%d_%H-%M.mp4"
+           "-segment_time", "600", "-segment_format", "mp4", "/home/pi/DualCrimCamera/public/videos/cam1/%Y-%m-%d_%H-%M.mp4"
       ]);
       child.stdout.on('data', (data) => {
         console.log(`stdout: ${data}`);
@@ -94,9 +94,9 @@ function Startrecording(){
 
        child2 = spawn("ffmpeg", [
           "-hide_banner","-loglevel", "panic",
-          "-i", "rtsp://admin:UUnv9njxg123@10.10.5.3:554/cam/realmonitor?channel=1&subtype=0",
+          "-i", "rtsp://admin:UUnv9njxg123@10.11.5.2:554/cam/realmonitor?channel=1&subtype=0",
            "-vcodec",  "copy",  "-f", "segment", "-strftime", "1", 
-           "-segment_time", "900", "-segment_format", "mp4", "/home/pi/DualCrimeCamera/public/videos/cam2/%Y-%m-%d_%H-%M.mp4"
+           "-segment_time", "600", "-segment_format", "mp4", "/home/pi/DualCrimCamera/public/videos/cam2/%Y-%m-%d_%H-%M.mp4"
       ]);
       child2.stdout.on('data', (data2) => {
         console.log(`stdout: ${data2}`);
@@ -108,9 +108,9 @@ function Startrecording(){
 
     child3 = spawn("ffmpeg", [
         "-hide_banner","-loglevel", "panic",
-        "-i", "rtsp://admin:UUnv9njxg123@10.10.5.4:554/cam/realmonitor?channel=1&subtype=0",
+        "-i", "rtsp://admin:UUnv9njxg123@10.12.5.2:554/cam/realmonitor?channel=1&subtype=0",
          "-vcodec",  "copy",  "-f", "segment", "-strftime", "1", 
-         "-segment_time", "900", "-segment_format", "mp4", "/home/pi/DualCrimeCamera/public/videos/cam3/%Y-%m-%d_%H-%M.mp4"
+         "-segment_time", "600", "-segment_format", "mp4", "/home/pi/DualCrimCamera/public/videos/cam3/%Y-%m-%d_%H-%M.mp4"
     ]);
     child3.stdout.on('data', (data2) => {
       console.log(`stdout: ${data2}`);
@@ -132,7 +132,7 @@ function sendVideoandData() {
     var y;
     var videoFiles = []
     var ffmpeg = require('fluent-ffmpeg');
-    exec('ls /home/pi/DualCrimeCamera/public/videos/cam1' , function(error, stdout, stderr) {
+    exec('ls /home/pi/DualCrimCamera/public/videos/cam1' , function(error, stdout, stderr) {
       if (error){
         console.log(error)
       }
@@ -145,6 +145,7 @@ function sendVideoandData() {
             for(y=0;y<newStringArray.length;y++){
                 if(newStringArray[y]){
                     console.log(newStringArray[y])
+                    //WHY IS THIS NOT RIGHT... FIX ME
                     ffmpeg.ffprobe('/mnt/drive/cam1/'+newStringArray[y],function(err, metadata) {
                         //console.log(metadata);
                         var videoandData = {"fileName":newStringArray[y],"metaData":metadata}
@@ -199,7 +200,7 @@ function sendVideoInfo(file, camera){
     //send em
 function sendVideoFiles(){
    
-    exec('ls /home/pi/DualCrimeCamera/public/videos/cam1' , function(error, stdout, stderr) {
+    exec('ls /home/pi/DualCrimCamera/public/videos/cam1' , function(error, stdout, stderr) {
       if (error){
         console.log(error)
       }
@@ -216,7 +217,7 @@ function sendVideoFiles(){
                     socket2.emit("videoFilesCam1",videoFilescam1 )
                      videoFilescam1.length = 0;
                      setTimeout(() => {
-                        exec('ls /home/pi/DualCrimeCamera/public/videos/cam2' , function(error, stdout, stderr) {
+                        exec('ls /home/pi/DualCrimCamera/public/videos/cam2' , function(error, stdout, stderr) {
                             if (error){
                               console.log(error)
                             }
@@ -233,7 +234,7 @@ function sendVideoFiles(){
                                           socket2.emit("videoFilesCam2",videoFilescam2 )
                                           videoFilescam2.length = 0;
                                           setTimeout(() => {
-                                            exec('ls /home/pi/DualCrimeCamera/public/videos/cam3' , function(error, stdout, stderr) {
+                                            exec('ls /home/pi/DualCrimCamera/public/videos/cam3' , function(error, stdout, stderr) {
                                                 if (error){
                                                   console.log(error)
                                                 }
@@ -293,21 +294,21 @@ function sendVideoFiles(){
 
 
 socket2.on('getVideoInfoCam1', function(data){
-    var fileURI = "/home/pi/DualCrimeCamera/public/videos/cam1/"+data
+    var fileURI = "/home/pi/DualCrimCamera/public/videos/cam1/"+data
     sendVideoInfo(fileURI, 'camera1')
 //console.log(fileURI)
 
 
 })
 socket2.on('getVideoInfoCam2', function(data){
-    var fileURI = "/home/pi/DualCrimeCamera/public/videos/cam2/"+data
+    var fileURI = "/home/pi/DualCrimCamera/public/videos/cam2/"+data
     sendVideoInfo(fileURI, 'camera2')
     //console.log(fileURI)
 
 
 })
 socket2.on('getVideoInfoCam3', function(data){
-    var fileURI = "/home/pi/DualCrimeCamera/public/videos/cam3/"+data
+    var fileURI = "/home/pi/DualCrimCamera/public/videos/cam3/"+data
     sendVideoInfo(fileURI, 'camera3')
     //console.log(fileURI)
 
