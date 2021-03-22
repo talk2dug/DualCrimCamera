@@ -5,7 +5,7 @@ var socketApi = {};
 const dreamHost = require("socket.io-client");
 var os = require('os');
 var ifaces = os.networkInterfaces();
-
+const si = require('systeminformation');
 
 
 require('events').EventEmitter.prototype._maxListeners = 100;
@@ -42,31 +42,123 @@ var fileNameTImeStamp = moment().format("YYYY-MM-DD-HHmm");
       var name = "/mnt/drive/"+ fileNameTImeStamp+".mp4"
 var spawn = require('child_process').spawn,
 child = null;
+var sysInfo = {'diskLayout':[],
+'fsSize':[],
+'osInfo':{},
 
+
+
+}
 var systemInfo = {
     "name":"DualCrimeCam",
     'id': 'jhgwesd',
     "ip":"192.168.196.164",
     "numOfCams":3,
     "typs":"standard",
-    'sysInfo':{
-        'DriveSpaceTB':2,
-        'boardType': 'Pi4',
-        'ramGB':4,
-      },
+    'sysInfo':sysInfo,
       'location':{'lat': 38.65456, 'lng':  -77.435076},
 
 
 
 }
 
+
+var perfmonPacket = {
+camera:'DualCrimeCam',
+'currentLoad':{
+    'cpus':[]},
+  'mem':{},
+    'cpuTemperature':{},
+   
+}
+
+si.diskLayout(function(data) {
+    for(var i=0;i<data.length;i++){
+        sysInfo.diskLayout.push({
+        'device':data[i].device,
+        'type':data[i].type,
+        'type':data[i].name,
+        'vendor':data[i].vendor,
+        'size':data[i].size
+
+        })
+    }
+  })
+si.fsSize(function(data) {
+    for(var i=0;i<data.length;i++){
+        sysInfo.fsSize.push({
+            'fs':data[i].fs,
+            'type':data[i].type,
+            'size': data[i].size,
+            'used': data[i].used,
+            'available': data[i].available,
+            'mount': data[i].mount
+        })
+        
+    }
+    
+  })
+
+si.osInfo(function(data) {
+    sysInfo.osInfo.distro = data.distro
+    sysInfo.osInfo.release = data.release
+    sysInfo.osInfo.codename = data.codename
+    sysInfo.osInfo.kernel = data.kernel
+    sysInfo.osInfo.arch = data.arch
+    sysInfo.osInfo.hostname = data.hostname
+    sysInfo.osInfo.fqdn = data.fqdn
+})
+
+  
+
+
+
+si.memLayout(function(data) {
+    sysInfo.memLayout = data
+    console.log('Memory Available:');
+    console.log(data[0].size);
+  })
+
+si.cpu(function(data) {
+    console.log('CPU Information:');
+    sysInfo.cpu = data
+    console.log(data.speed)
+    console.log(data.cores)
+    console.log(data.brand);
+  })
 var socket2 = dreamHost('http://192.168.196.123:3001/cameras', { autoConnect: true});
 function intervalFunc() {
+    
     socket2.emit('systemOnline',systemInfo)
   }
   
-  setInterval(intervalFunc, 30000);
-
+  setInterval(intervalFunc, 20000);
+ 
+  function intervalFunc2() {
+    si.cpuTemperature(function(data) {
+        perfmonPacket['cpuTemperature'].main = data.main
+      })
+    si.mem(function(data) {
+        perfmonPacket['mem']['total']=data.total
+        perfmonPacket['mem']['free']=data.free
+        perfmonPacket['mem']['used']=data.used
+        perfmonPacket['mem']['available']=data.available
+      })
+    si.currentLoad(function(data) {
+        perfmonPacket.currentLoad.cpus = []
+        perfmonPacket.currentLoad.avgLoad=data.avgLoad
+        perfmonPacket.currentLoad.currentLoad=data.currentLoad
+        perfmonPacket.currentLoad.currentLoadUser=data.currentLoadUser
+        for(var i=0;i<data.cpus.length;i++){
+            console.log(data.cpus[i].load);
+            perfmonPacket.currentLoad.cpus.push(data.cpus[i].load)  
+        }
+      })
+    socket2.emit('perfmonStats',perfmonPacket)
+    
+  }
+  
+  setInterval(intervalFunc2, 30000);   
     
 socket2.on("hi", function(data){
     console.log("HHHHIII")

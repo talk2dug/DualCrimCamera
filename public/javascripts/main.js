@@ -27,6 +27,11 @@ const Http = new XMLHttpRequest();
 var socket = io();
 var mainServer = io('//192.168.196.164:3000/');
 
+
+
+
+
+
 var mainLayOutHTML = "<div class='container mainContainer'>"+
                         "<div class='row'>"+
                           "<div class='col-15 col-md-15 customBox topRow'><h1>Shreveport LA Crime Camera</h1></div>"+
